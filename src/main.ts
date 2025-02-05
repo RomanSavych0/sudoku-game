@@ -5,7 +5,17 @@ import { createVuetify } from 'vuetify';
 import 'vuetify/styles';
 import store from './store'; // Import the Vuex store
 
-const vuetify = createVuetify();
+
+const vuetify = createVuetify({
+    icons: {
+        defaultSet: 'mdi',
+        aliases,
+        sets: {
+            mdi,
+        },
+    },
+});
+import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
 createApp(App)
     .use(vuetify)      // Use Vuetify for UI components

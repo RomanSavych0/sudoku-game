@@ -1,13 +1,14 @@
 // src/store.ts
 import { createStore } from 'vuex'
 import {type CellState} from "./types";
+import createPersistedState from 'vuex-persistedstate';
 
 export interface GameState {
     grid: CellState[][],
     score: number,
     hintsUsed: number,
     timeElapsed: number,
-    leaderboard: { rank: string, score: number }[],
+    leaderboard: { rank: string, score: number  , username:string}[],
     difficulty: 'beginner' | 'intermediate' | 'hard' | 'expert',
     isTimerRunning: boolean,
     gameCompleted: boolean,
@@ -15,7 +16,7 @@ export interface GameState {
     lastHintPenalty: number,
     scoredCells: Set<string>,
     timerInterval: number | null;
-
+    username:string
 }
 
 import {isValid, solveSudoku} from './helpers/sudokuHelpres';
@@ -34,25 +35,38 @@ const store = createStore<GameState>({
         hintsUsed: 0,
         timeElapsed: 0,
         leaderboard: [],
-        difficulty: 'expert',
+        difficulty: 'beginner',
         isTimerRunning: false,
         gameCompleted: false,
         errorsCount: 0,
         lastHintPenalty: 3,
         scoredCells: new Set(),
-        timerInterval:null
+        timerInterval:null,
+        username:""
     },
     mutations: {
         setCellError(state, { row, col, error }) {
             state.grid[row][col].error = error;
         },
+        setUsername(state , username:string){
+        state.username = username;
+        },
+
         checkForCompletion(state) {
             const isComplete = state.grid.flat()
                 .every(cell => cell.value && !cell.error);
             if (isComplete && !state.gameCompleted) {
                 state.gameCompleted = true;
                 state.isTimerRunning = false;
+                const timeBonus = 500 - state.timeElapsed;
 
+                state.score += Math.max(timeBonus, 0);
+
+                state.leaderboard.push({
+                    username:state.username,
+                    score:state.score,
+                    rank:state.difficulty
+                })
                 // Clear the interval
                 if (state.timerInterval) {
                     clearInterval(state.timerInterval);
@@ -60,8 +74,6 @@ const store = createStore<GameState>({
                 }
 
                 // Add time bonus
-                const timeBonus = 500 - state.timeElapsed;
-                state.score += Math.max(timeBonus, 0);
             }
         },
         incrementHintsUsed(state) {
@@ -69,7 +81,9 @@ const store = createStore<GameState>({
                 // Calculate penalty: 3, 4, 5... sequence
                 const penalty = 2 + state.hintsUsed;
                 state.hintsUsed++;
-                state.score -= penalty;
+                console.log('penalty' , penalty)
+                console.log('state.score' , state.score - penalty)
+                state.score = state.score  -  penalty;
                 state.lastHintPenalty = penalty;
             }
         },
@@ -77,7 +91,7 @@ const store = createStore<GameState>({
             state.hintsUsed = 0;
             state.lastHintPenalty = 3;
         },
-        updateCell(state, { row, col, value }) {
+        updateCell(state, { row, col, value , updateScore = true  }) {
             const valid = value.value ?
                 isValid(state.grid, row, col, value.value) : true;
 
@@ -85,7 +99,10 @@ const store = createStore<GameState>({
             const cellKey = `${row}-${col}`;
             if (value.value && !state.scoredCells.has(cellKey)) {
                 state.scoredCells.add(cellKey);
-                state.score += 5;
+                if(updateScore && valid){
+                    state.score += 5;
+
+                }
             }
 
             // Track errors
@@ -165,31 +182,30 @@ const store = createStore<GameState>({
                                 value: clonedGrid[row][col].value.toString(),
                                 editable: true,
                                 error: false
-                            }
+                            },
+                            updateScore:false
+
                         });
                         return;
                     }
                 }
             }
+
         },
 
         startGameTimer({ commit, state }) {
-            // Clear existing interval if any
             if (state.timerInterval) {
                 clearInterval(state.timerInterval);
             }
 
-            // Create new interval
             const timer = setInterval(() => {
                 if (!state.gameCompleted) {
                     commit('incrementTime');
                 }
             }, 1000);
 
-            // Store interval ID in state
             state.timerInterval = timer;
 
-            // Handle tab visibility changes
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden) {
                     commit('pauseTimer');
@@ -259,7 +275,13 @@ const store = createStore<GameState>({
             const seconds = state.timeElapsed % 60;
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
-    }
+    },
+    plugins: [
+        createPersistedState({
+            key: 'sudoku-game',
+            paths: ['leaderboard'],
+        }),
+    ],
 });
 
 export default store;

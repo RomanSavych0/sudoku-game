@@ -6,10 +6,12 @@ import path from "path";
 
 // Vite resolve alias configuration
 export default defineConfig({
-  plugins: [vue()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, ",,/"),
-    }
-  }
+      "@": path.resolve(__dirname, "./src"),
+      "@server": path.resolve(__dirname, "../server/src"),
+    },
+  },
+  plugins: [vue()],
+
 })

@@ -20,7 +20,7 @@ import { defineComponent, PropType, ref, watch } from 'vue';
 export default defineComponent({
   props: {
     value: {
-      type: String,  // Changed to String only
+      type: String,
       default: ''
     },
     editable: {
@@ -34,10 +34,8 @@ export default defineComponent({
   },
   emits: ['update'],
   setup(props, { emit }) {
-    // Use displayValue to handle empty strings and numbers
     const displayValue = ref(props.value || '');
 
-    // Watch for external value changes (like from hints)
     watch(() => props.value, (newVal) => {
       displayValue.value = newVal;
     });
@@ -45,7 +43,7 @@ export default defineComponent({
     const handleInput = (event: Event) => {
       const input = event.target as HTMLInputElement;
       let value = input.value;
-
+      console.log('value', value)
       // Handle backspace/delete
       if (value === '') {
         displayValue.value = '';
@@ -53,15 +51,15 @@ export default defineComponent({
         return;
       }
 
-      // Convert to number and validate
       const num = parseInt(value, 10);
       if (isNaN(num)) {
         displayValue.value = '';
         return;
       }
 
-      // Clamp values between 1-9
+
       const clamped = Math.min(Math.max(num, 1), 9).toString();
+      console.log('clamped' , clamped)
       displayValue.value = clamped;
       emit('update', clamped);
     };
