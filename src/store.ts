@@ -61,12 +61,14 @@ const store = createStore<GameState>({
                 const timeBonus = 500 - state.timeElapsed;
 
                 state.score += Math.max(timeBonus, 0);
+                if( state.score  > 0){
+                    state.leaderboard.push({
+                        username:state.username,
+                        score:state.score,
+                        rank:state.difficulty
+                    })
+                }
 
-                state.leaderboard.push({
-                    username:state.username,
-                    score:state.score,
-                    rank:state.difficulty
-                })
                 // Clear the interval
                 if (state.timerInterval) {
                     clearInterval(state.timerInterval);
@@ -81,8 +83,6 @@ const store = createStore<GameState>({
                 // Calculate penalty: 3, 4, 5... sequence
                 const penalty = 2 + state.hintsUsed;
                 state.hintsUsed++;
-                console.log('penalty' , penalty)
-                console.log('state.score' , state.score - penalty)
                 state.score = state.score  -  penalty;
                 state.lastHintPenalty = penalty;
             }
@@ -139,13 +139,7 @@ const store = createStore<GameState>({
         setDifficulty(state, difficulty) {
             state.difficulty = difficulty;
         },
-        updateLeaderboard(state, newRecord) {
-            state.leaderboard.push(newRecord);
-            state.leaderboard.sort((a, b) => b.score - a.score);
-            if (state.leaderboard.length > 3) {
-                state.leaderboard.pop();
-            }
-        },
+
         startTimer(state) {
             state.isTimerRunning = true;
         },
