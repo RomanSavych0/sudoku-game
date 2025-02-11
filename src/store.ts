@@ -16,7 +16,14 @@ export interface GameState {
     lastHintPenalty: number,
     scoredCells: Set<string>,
     timerInterval: number | null ;
-    username:string
+    username:string,
+    history: Array<{
+        grid: CellState[][];
+        score: number;
+        hintsUsed: number;
+        errorsCount: number;
+    }>;
+    currentStep: number;
 }
 
 import {backtrackSolve, isValid, solveSudoku} from './helpers/sudokuHelpres';
@@ -42,7 +49,10 @@ const store = createStore<GameState>({
         lastHintPenalty: 3,
         scoredCells: new Set(),
         timerInterval:null,
-        username:""
+        username:"",
+        history: [],
+        currentStep: -1,
+
     },
     mutations: {
         setCellError(state, { row, col, error }) {
@@ -50,6 +60,29 @@ const store = createStore<GameState>({
         },
         setUsername(state , username:string){
         state.username = username;
+        },
+        saveSnapshot(state) {
+            console.log('saveSnapshot')
+            const snapshot = {
+                grid: JSON.parse(JSON.stringify(state.grid)),
+                score: state.score,
+                hintsUsed: state.hintsUsed,
+                errorsCount: state.errorsCount
+            };
+
+            // Truncate if needed
+            if (state.currentStep < state.history.length - 1) {
+                state.history = state.history.slice(0, state.currentStep + 1);
+            }
+
+            state.history.push(snapshot);
+            state.currentStep++;
+
+            // Keep last 100 moves
+            if (state.history.length > 100) {
+                state.history.shift();
+                state.currentStep = 99;
+            }
         },
 
         checkForCompletion(state) {
@@ -76,6 +109,27 @@ const store = createStore<GameState>({
                 }
 
                 // Add time bonus
+            }
+        },
+        undo(state) {
+            if (state.currentStep > 0) {
+                state.currentStep--;
+                const snapshot = state.history[state.currentStep];
+                state.grid = JSON.parse(JSON.stringify(snapshot.grid));
+                state.score = snapshot.score;
+                state.hintsUsed = snapshot.hintsUsed;
+                state.errorsCount = snapshot.errorsCount;
+            }
+        },
+
+        redo(state) {
+            if (state.currentStep < state.history.length - 1) {
+                state.currentStep++;
+                const snapshot = state.history[state.currentStep];
+                state.grid = JSON.parse(JSON.stringify(snapshot.grid));
+                state.score = snapshot.score;
+                state.hintsUsed = snapshot.hintsUsed;
+                state.errorsCount = snapshot.errorsCount;
             }
         },
         incrementHintsUsed(state) {
@@ -122,6 +176,7 @@ const store = createStore<GameState>({
                     };
                 });
             });
+            store.commit('saveSnapshot');
             store.commit('checkForCompletion');
 
         },
@@ -209,6 +264,14 @@ const store = createStore<GameState>({
                 }
             });
         },
+
+        undo({ commit }) {
+            commit('undo');
+        },
+
+        redo({ commit }) {
+            commit('redo');
+        }
     },
     getters: {
         topLeaderboard(state) {

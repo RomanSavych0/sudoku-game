@@ -21,8 +21,11 @@
         class="hint-btn"
     >
       <v-icon icon="mdi-lightbulb-on"></v-icon>
-
     </v-btn>
+    <div>
+      <v-btn @click="undo" :disabled="!canUndo">Undo</v-btn>
+      <v-btn @click="redo" :disabled="!canRedo">Redo</v-btn>
+    </div>
   </div>
 
 </template>
@@ -40,7 +43,12 @@ export default defineComponent({
   },
   setup(){
     const store = useStore();
-
+    const canUndo = computed(() => store.state.currentStep > 0);
+    const canRedo = computed(() =>
+        store.state.currentStep < store.state.history.length - 1
+    );
+    const undo = () => store.dispatch('undo');
+    const redo = () => store.dispatch('redo');
 // Computed properties
     const formattedTime = computed(() => store.getters.formattedTime);
     const gameCompleted = computed(() => store.state.gameCompleted);
@@ -60,7 +68,11 @@ export default defineComponent({
       MAX_AVAILABLE_HINTS,
       getHint,
       difficulty,
-      score
+      score,
+      canUndo,
+      canRedo,
+      undo,
+      redo
 
 
     }

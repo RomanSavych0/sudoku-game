@@ -78,6 +78,8 @@ export default defineComponent({
       const generatedGrid = generateSudoku(difficulty.value);
 
       store.commit("setGrid", generatedGrid);
+      store.commit('saveSnapshot');
+
     };
 
 
