@@ -15,7 +15,7 @@ export interface GameState {
     errorsCount: number,
     lastHintPenalty: number,
     scoredCells: Set<string>,
-    timerInterval: number | null;
+    timerInterval: number | null ;
     username:string
 }
 
@@ -128,7 +128,7 @@ const store = createStore<GameState>({
         updateScore(state, points: number) {
             state.score += points;
         },
-        setGrid(state, newGrid) {
+        setGrid(state, newGrid:CellState[][]) {
             state.grid = newGrid.map(row =>
                 row.map(cell => ({ ...cell }))
             );
@@ -198,6 +198,7 @@ const store = createStore<GameState>({
                 }
             }, 1000);
 
+            // @ts-ignore
             state.timerInterval = timer;
 
             document.addEventListener('visibilitychange', () => {
@@ -250,7 +251,7 @@ const store = createStore<GameState>({
 
             state.grid.forEach(row => {
                 row.forEach(cell => {
-                    const num = parseInt(cell.value, 10);
+                    const num = parseInt(cell.value as string, 10);
                     if (!isNaN(num) && num >= 1 && num <= 9) {
                         digitCounts[num - 1]++;
                     }

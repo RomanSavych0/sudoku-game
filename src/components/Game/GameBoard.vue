@@ -68,7 +68,7 @@ export default defineComponent({
 
     const completedSubgrids = computed(() => store.getters.completedSubGrids);
 
-    const getCellClass = (rowIndex, colIndex) => {
+    const getCellClass = (rowIndex :number, colIndex :number) => {
       const subgridIndex = Math.floor(rowIndex / 3) * 3 + Math.floor(colIndex / 3); // Calculate subgrid index (0-8)
       return completedSubgrids.value.includes(subgridIndex) ? 'completed-row-animation' : '';
     };
@@ -98,7 +98,7 @@ export default defineComponent({
     };
 
 
-    const updateCell = (rowIndex, colIndex, value) => {
+    const updateCell = (rowIndex:number, colIndex:number, value:string) => {
       // Check if the cell is editable before updating
       const cell = grid.value[rowIndex][colIndex];
       if (cell.editable) {
