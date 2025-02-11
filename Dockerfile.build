@@ -1,0 +1,17 @@
+# Use Node.js for building
+FROM node:18-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy only package.json (if package-lock.json is missing)
+COPY package.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the project
+COPY . .
+
+# Build the Vite project
+RUN npm run build

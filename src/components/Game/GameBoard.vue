@@ -64,7 +64,7 @@ export default defineComponent({
     const score = computed(() => store.state.score);
 
     const grid = computed(() => store.state.grid);
-
+    const difficulty = computed(() => store.state.difficulty)
 
     const completedSubgrids = computed(() => store.getters.completedSubGrids);
 
@@ -73,10 +73,9 @@ export default defineComponent({
       return completedSubgrids.value.includes(subgridIndex) ? 'completed-row-animation' : '';
     };
 
-
     const generateAndSetGrid = () => {
       const {generateSudoku} = useSudoku();
-      const generatedGrid = generateSudoku("beginner");
+      const generatedGrid = generateSudoku(difficulty.value);
 
       store.commit("setGrid", generatedGrid);
     };

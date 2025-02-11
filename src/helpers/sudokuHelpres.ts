@@ -131,3 +131,48 @@ export const solveSudoku = (grid: CellState[][]): boolean => {
 
     return false;
 };
+
+export const backtrackSolve = (grid: CellState[][])=>{
+    console.log('backtrackSolve')
+    // Create a deep clone to avoid mutating original grid
+    const workingGrid = grid.map(row =>
+        row.map(cell => ({ ...cell }))
+    );
+
+    const backtrack = (): boolean => {
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                if (!workingGrid[row][col].value) {
+                    for (let num = 1; num <= 9; num++) {
+                        if (isValid(workingGrid, row, col, num)) {
+                            workingGrid[row][col] = {
+                                ...workingGrid[row][col],
+                                value: num.toString()
+                            };
+
+                            if (backtrack()) return true;
+
+                            workingGrid[row][col] = {
+                                ...workingGrid[row][col],
+                                value: ''
+                            };
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
+    const solved = backtrack();
+
+    // Update original grid only if solved
+    if (solved) {
+        grid.splice(0, grid.length, ...workingGrid.map(row =>
+            row.map(cell => ({ ...cell }))
+        ));
+    }
+
+    return solved;
+}

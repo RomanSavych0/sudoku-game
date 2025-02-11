@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "deploy": "npm run build && gh-pages -d dist"
+
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
@@ -26,6 +28,7 @@
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.7.0",
+    "gh-pages": "^6.3.0",
     "jsdom": "^26.0.0",
     "typescript": "~5.6.2",
     "vite": "^6.0.5",

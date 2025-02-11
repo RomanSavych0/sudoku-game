@@ -13,5 +13,7 @@ export default defineConfig({
     },
   },
   plugins: [vue()],
+  base: '/sudoku-game/', // Must match your repository name
+
 
 })

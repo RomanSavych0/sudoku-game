@@ -1,4 +1,8 @@
 export const DIFFICULTY = {
+    test: {
+        min: 80,
+        max: 90,
+    },
     beginner: {
         min: 36,
         max: 40,

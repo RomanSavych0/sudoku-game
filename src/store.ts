@@ -19,7 +19,7 @@ export interface GameState {
     username:string
 }
 
-import {isValid, solveSudoku} from './helpers/sudokuHelpres';
+import {backtrackSolve, isValid, solveSudoku} from './helpers/sudokuHelpres';
 import {MAX_AVAILABLE_HINTS} from "./const/difficulty";
 
 const store = createStore<GameState>({
@@ -164,7 +164,7 @@ const store = createStore<GameState>({
             commit('incrementHintsUsed');
 
             const clonedGrid = JSON.parse(JSON.stringify(state.grid));
-            solveSudoku(clonedGrid);
+            backtrackSolve(clonedGrid);
 
             for (let row = 0; row < 9; row++) {
                 for (let col = 0; col < 9; col++) {

@@ -30,10 +30,11 @@ export const useSudoku = () => {
                 editable: cell.value === '', // Set editable based on value
             }))
         );
-
+        console.log('difficulty' , difficulty)
         // 4. Remove cells based on difficulty
         const { min, max } = DIFFICULTY[difficulty];
         const totalFilledCells = Math.floor(Math.random() * (max - min + 1)) + min;
+        console.log('totalFilledCells' , totalFilledCells)
         let cellsToRemove = 81 - totalFilledCells;
 
         while (cellsToRemove > 0) {
